@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Tut1"
+rootProject.name = "OneLiner"
 include ':app'
