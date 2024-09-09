@@ -64,7 +64,7 @@ public class FirstFragment extends Fragment {
 
     private void fetchHitokoto() {
         Request request = new Request.Builder()
-                .url("https://v1.hitokoto.cn")
+                .url("https://v1.hitokoto.cn?c=d&c=e&c=f&c=g&c=h&c=i&c=j&c=k")
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
