@@ -1,5 +1,7 @@
 package com.example.one;
 
+import static androidx.core.app.ActivityCompat.finishAffinity;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,12 +52,22 @@ public class FirstFragment extends Fragment {
         hitokotoFrom = binding.hitokotoFrom;
         hitokotoFromWho = binding.hitokotoFromWho;
 
-        binding.buttonFirst.setOnClickListener(v ->
+        binding.buttonSecond1.setOnClickListener(v ->
                 NavHostFragment.findNavController(FirstFragment.this)
-                        .navigate(R.id.action_FirstFragment_to_SecondFragment)
+                        .navigate(R.id.action_to_SecondFragment)
         );
 
-        binding.buttonFresh.setOnClickListener(v ->
+        binding.buttonThird1.setOnClickListener(v ->
+                NavHostFragment.findNavController(FirstFragment.this)
+                        .navigate(R.id.action_to_ThirdFragment)
+        );
+
+        binding.buttonClose1.setOnClickListener(v ->{
+            finishAffinity(getActivity());
+            System.exit(0);
+        });
+
+        binding.buttonFresh1.setOnClickListener(v ->
                 fetchHitokoto()
         );
 
@@ -64,7 +76,7 @@ public class FirstFragment extends Fragment {
 
     private void fetchHitokoto() {
         Request request = new Request.Builder()
-                .url("https://v1.hitokoto.cn?c=d&c=e&c=f&c=g&c=h&c=i&c=j&c=k")
+                .url("https://v1.hitokoto.cn?c=d&c=i&c=j&c=k")
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
