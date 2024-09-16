@@ -15,4 +15,6 @@
     <string name="third">今日诗词</string>
     <string name="go_back">回溯</string>
     <string name="reset">重置</string>
+    <string name="stop">停止</string>
+    <string name="auto">自动</string>
 </resources>

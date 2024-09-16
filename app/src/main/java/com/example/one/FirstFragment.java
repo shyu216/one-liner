@@ -8,6 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import android.widget.Button;
+import android.widget.ProgressBar;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
@@ -25,6 +28,8 @@ import java.io.IOException;
 import android.util.Log;
 import java.nio.charset.StandardCharsets;
 
+import android.os.CountDownTimer;
+
 public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
@@ -33,6 +38,11 @@ public class FirstFragment extends Fragment {
     private TextView hitokotoType;
     private TextView hitokotoFrom;
     private TextView hitokotoFromWho;
+
+    private ProgressBar progressBarCountdown;
+    private Button buttonToggle;
+    private boolean isAutoFetchEnabled = false;
+    private CountDownTimer countDownTimer;
 
     @Override
     public View onCreateView(
@@ -51,6 +61,9 @@ public class FirstFragment extends Fragment {
         hitokotoType = binding.hitokotoType;
         hitokotoFrom = binding.hitokotoFrom;
         hitokotoFromWho = binding.hitokotoFromWho;
+        progressBarCountdown = view.findViewById(R.id.progressBar_auto_1);
+        buttonToggle = view.findViewById(R.id.button_auto_1);
+
 
         binding.buttonSecond1.setOnClickListener(v ->
                 NavHostFragment.findNavController(FirstFragment.this)
@@ -71,7 +84,42 @@ public class FirstFragment extends Fragment {
                 fetchHitokoto()
         );
 
+        buttonToggle.setOnClickListener(v -> {
+            isAutoFetchEnabled = !isAutoFetchEnabled;
+            if (isAutoFetchEnabled) {
+                buttonToggle.setText(R.string.stop);
+                startAutoFetch();
+            } else {
+                buttonToggle.setText(R.string.auto);
+                stopAutoFetch();
+            }
+        });
+
         fetchHitokoto();
+    }
+
+    private void startAutoFetch() {
+        countDownTimer = new CountDownTimer(5000, 50) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                int progress = (int) (100 - millisUntilFinished / 50);
+                progressBarCountdown.setProgress(progress);
+            }
+
+            @Override
+            public void onFinish() {
+                fetchHitokoto();
+                if (isAutoFetchEnabled) {
+                    startAutoFetch();
+                }
+            }
+        }.start();
+    }
+
+    private void stopAutoFetch() {
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
     }
 
     private void fetchHitokoto() {
