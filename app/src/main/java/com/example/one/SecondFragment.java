@@ -5,7 +5,9 @@ import static androidx.core.app.ActivityCompat.finishAffinity;
 import android.content.ContentProviderOperation;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -13,7 +15,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.one.databinding.FragmentSecondBinding;
 
@@ -30,9 +34,10 @@ import okhttp3.Response;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
+
 import com.bumptech.glide.Glide;
 
-public class SecondFragment extends Fragment {
+public class SecondFragment extends Fragment implements GestureDetector.OnGestureListener {
 
     private FragmentSecondBinding binding;
     private OkHttpClient client = new OkHttpClient();
@@ -43,6 +48,13 @@ public class SecondFragment extends Fragment {
     private TextView cibaDate;
     LocalDate currentDate;
 
+
+    private androidx.swiperefreshlayout.widget.SwipeRefreshLayout swipeRefreshLayout;
+    private GestureDetector gestureDetector;
+
+    private static final int SWIPE_THRESHOLD = 50;
+    private static final int SWIPE_VELOCITY_THRESHOLD = 50;
+
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
@@ -50,6 +62,19 @@ public class SecondFragment extends Fragment {
     ) {
 
         binding = FragmentSecondBinding.inflate(inflater, container, false);
+
+        // 获取 SwipeRefreshLayout 实例
+        swipeRefreshLayout = binding.getRoot().findViewById(R.id.swipeRefreshLayout2); // Assuming you added SwipeRefreshLayout in your XML
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // This method is called when the user pulls down to refresh
+                // Perform the refresh operation here
+                goBack1Day();
+            }
+        });
+
+
         return binding.getRoot();
 
     }
@@ -62,26 +87,33 @@ public class SecondFragment extends Fragment {
         cibaImage = view.findViewById(R.id.ciba_img);
         cibaDate = view.findViewById(R.id.ciba_date_text);
 
-        binding.buttonThird2.setOnClickListener(v ->
-                NavHostFragment.findNavController(SecondFragment.this)
-                        .navigate(R.id.action_to_ThirdFragment)
-        );
+//        binding.buttonThird2.setOnClickListener(v ->
+//                NavHostFragment.findNavController(SecondFragment.this)
+//                        .navigate(R.id.action_to_ThirdFragment)
+//        );
+//
+//        binding.buttonFirst2.setOnClickListener(v ->
+//                NavHostFragment.findNavController(SecondFragment.this)
+//                        .navigate(R.id.action_to_FirstFragment)
+//        );
+//
+//        binding.buttonClose2.setOnClickListener(v ->{
+//            finishAffinity(getActivity());
+//            System.exit(0);
+//                });
 
-        binding.buttonFirst2.setOnClickListener(v ->
-                NavHostFragment.findNavController(SecondFragment.this)
-                        .navigate(R.id.action_to_FirstFragment)
-        );
 
-        binding.buttonClose2.setOnClickListener(v ->{
-            finishAffinity(getActivity());
-            System.exit(0);
-                });
+        gestureDetector = new GestureDetector(getContext(), (GestureDetector.OnGestureListener) this);
+        view.setOnTouchListener((v, event) -> {
+            gestureDetector.onTouchEvent(event);
+            return true;
+        });
+
 
         resetDate();
-        fetchCiba();
 
-        binding.buttonBack2.setOnClickListener(v -> goBack1Day());
-        binding.buttonReset2.setOnClickListener(v -> resetDate());
+//        binding.buttonBack2.setOnClickListener(v -> goBack1Day());
+//        binding.buttonReset2.setOnClickListener(v -> resetDate());
     }
 
     private void goBack1Day() {
@@ -151,8 +183,11 @@ public class SecondFragment extends Fragment {
                                     .load(picture2)
                                     .into(cibaImage);
 
+                            swipeRefreshLayout.setRefreshing(false);
                         } catch (Exception e) {
                             e.printStackTrace();
+                            cibaEnglish.setText("Error: " + e.getMessage());
+                            swipeRefreshLayout.setRefreshing(false);
                         }
                     });
                 }
@@ -166,4 +201,56 @@ public class SecondFragment extends Fragment {
         binding = null;
     }
 
+    @Override
+    public boolean onDown(@NonNull MotionEvent motionEvent) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(@NonNull MotionEvent motionEvent) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(@NonNull MotionEvent motionEvent) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        // Check if SwipeRefreshLayout is not refreshing
+        if (!swipeRefreshLayout.isRefreshing()) {
+            // Check if the scroll is primarily vertical
+            if (Math.abs(distanceY) > Math.abs(distanceX)) {
+                // Check if the scroll distance is significant enough to be considered a pull-down gesture
+                if (distanceY < -SWIPE_THRESHOLD) {
+                    // Handle pull-down gesture for refreshing
+                    swipeRefreshLayout.setRefreshing(true);
+                    goBack1Day();
+                    return true;
+                }
+            }
+        }
+        // Handle regular scroll gesture
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+    }
+
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        if (e1.getX() - e2.getX() > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+            // 向左滑动
+            NavHostFragment.findNavController(this)
+                    .navigate(R.id.action_to_ThirdFragment, null, new NavOptions.Builder().setPopUpTo(R.id.SecondFragment, true).build());
+        } else if (e2.getX() - e1.getX() > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+            // 向右滑动
+            NavHostFragment.findNavController(this)
+                    .navigate(R.id.action_to_FirstFragment, null, new NavOptions.Builder().setPopUpTo(R.id.SecondFragment, true).build());
+        }
+        return true; // 返回 true 表示事件已处理
+    }
 }

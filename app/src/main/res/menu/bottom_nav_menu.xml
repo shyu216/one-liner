@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/ThirdFragment"
+        android:icon="@drawable/baseline_bookmarks_24"
+        android:title="@string/third" />
+
+    <item
+        android:id="@+id/FirstFragment"
+        android:icon="@drawable/baseline_chat_24"
+        android:title="@string/first" />
+
+    <item
+        android:id="@+id/SecondFragment"
+        android:icon="@drawable/baseline_menu_book_24"
+        android:title="@string/second" />
+
+</menu>
