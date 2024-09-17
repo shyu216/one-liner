@@ -1,5 +1,6 @@
 package com.example.one;
 
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Menu;
 
@@ -13,8 +14,17 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.one.databinding.ActivityMainBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.elevation.SurfaceColors;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.transition.MaterialContainerTransform;
+
+import android.os.Build;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowInsetsController;
+import android.view.WindowManager;
+import androidx.core.content.ContextCompat;
+
 
 public class MainActivity extends AppCompatActivity { // MainActivity 类继承自 AppCompatActivity
 
@@ -45,7 +55,7 @@ public class MainActivity extends AppCompatActivity { // MainActivity 类继承�
         // 将 ActionBar 与 NavController 关联，并使用 AppBarConfiguration 进行配置
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
-
+        getWindow().setNavigationBarColor(SurfaceColors.SURFACE_2.getColor(this));
     }
 
     @Override
